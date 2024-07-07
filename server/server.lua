@@ -6,6 +6,19 @@ RSGCore.Commands.Add('myjobs', 'Opens your job menu', {}, false, function(source
     TriggerClientEvent('rsg-multijob:client:openmenu', src)
 end)
 
+RSGCore.Functions.CreateCallback('rsg-multijob:server:checkjobs', function(source, cb)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    local citizenid = Player.PlayerData.citizenid
+    local result = MySQL.query.await('SELECT COUNT(*) as jobCount FROM player_jobs WHERE citizenid = ?', { citizenid })
+    local jobCount = result[1].jobCount
+    if jobCount < Config.MaxJobs then
+        cb(true)
+    else
+        cb(false)
+    end
+end)
+
 local function GetJobCount(cid)
     local result = MySQL.query.await('SELECT COUNT(*) as jobCount FROM player_jobs WHERE citizenid = ?', {cid})
     local jobCount = result[1].jobCount
