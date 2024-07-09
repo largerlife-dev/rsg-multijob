@@ -1,7 +1,7 @@
 RSGCore = exports['rsg-core']:GetCoreObject()
 
 return {
-    MaxJobs = 5,
+    MaxJobs = 2,
     JobIcons = {
         ['vallaw'] = 'fa-solid fa-shield',
         ['rholaw'] = 'fa-solid fa-shield',
