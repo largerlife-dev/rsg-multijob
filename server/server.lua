@@ -70,13 +70,13 @@ RegisterNetEvent('rsg-multijob:server:changeJob', function(job)
     local Player = RSGCore.Functions.GetPlayer(src)
 
     if Player.PlayerData.job.name == job then 
-        RSGCore.Functions.Notify(src, 'Your current job is already set to this.', 'error') 
+        TriggerClientEvent('ox_lib:notify', src, {title = 'Your current job is already set to this.', type = 'error', duration = 5000 })
         return 
     end
 
     local jobInfo = RSGCore.Shared.Jobs[job]
     if not jobInfo then 
-        RSGCore.Functions.Notify(src, 'Invalid job.', 'error') 
+        TriggerClientEvent('ox_lib:notify', src, {title = 'Invalid job.', type = 'error', duration = 5000 })
         return 
     end
 
@@ -90,7 +90,7 @@ RegisterNetEvent('rsg-multijob:server:changeJob', function(job)
     Player.Functions.SetJob(job, grade)
     Player.Functions.SetJobDuty(false)
     TriggerClientEvent('RSGCore:Client:SetDuty', src, false)
-    RSGCore.Functions.Notify(src, 'Your job is now: ' .. jobInfo.label)
+    TriggerClientEvent('ox_lib:notify', src, {title = 'Your job is now: ' .. jobInfo.label, type = 'info', duration = 5000 })
 end)
 
 RegisterNetEvent('rsg-multijob:server:newJob', function(newJob)
@@ -108,7 +108,7 @@ RegisterNetEvent('rsg-multijob:server:newJob', function(newJob)
     if not hasJob and GetJobCount(cid) < Config.MaxJobs then 
         MySQL.insert.await('INSERT INTO player_jobs (citizenid, job, grade) VALUE (?, ?, ?)', {cid, newJob.name, newJob.grade.level})
     else
-        return RSGCore.Functions.Notify(src, 'You have the max amount of jobs.', 'error')
+        return TriggerClientEvent('ox_lib:notify', src, {title = 'You have the max amount of jobs.', type = 'error', duration = 5000 })
     end
 end)
 
@@ -116,7 +116,7 @@ RegisterNetEvent('rsg-multijob:server:deleteJob', function(job)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
     MySQL.query.await('DELETE FROM player_jobs WHERE citizenid = ? and job = ?', {Player.PlayerData.citizenid, job})
-    RSGCore.Functions.Notify(src, 'You deleted '..RSGCore.Shared.Jobs[job].label..' job from your menu.')
+    TriggerClientEvent('ox_lib:notify', src, {title = 'You deleted '..RSGCore.Shared.Jobs[job].label..' job from your menu.', type = 'success', duration = 5000 })
     if Player.PlayerData.job.name == job then
         Player.Functions.SetJob('unemployed', 0)
     end
@@ -146,28 +146,30 @@ local function adminRemoveJob(src, id, job)
     local result = MySQL.query.await('SELECT * FROM player_jobs WHERE citizenid = ? AND job = ?', {cid, job})
     if result[1] then
         MySQL.query.await('DELETE FROM player_jobs WHERE citizenid = ? AND job = ?', {cid, job})
-        RSGCore.Functions.Notify(src, ('Job: %s was removed from ID: %s'):format(job, id), 'success')
+        TriggerClientEvent('ox_lib:notify', src, {title = ('Job: %s was removed from ID: %s'):format(job, id), type = 'success', duration = 5000 })
         if Player.PlayerData.job.name == job then
             Player.Functions.SetJob('unemployed', 0)
         end
     else
-        RSGCore.Functions.Notify(src, 'Player doesn\'t have this job?', 'error')
+        TriggerClientEvent('ox_lib:notify', src, {title = 'Player doesn\'t have this job?', type = 'error', duration = 5000 })
     end
 end
 
 RSGCore.Commands.Add('removejob', "Remove a job from the player's multijob.", { { name = 'id', help = 'ID of the player' }, { name = 'job', help = 'Name of Job' } }, true, function(source, args)
     local src = source
     if not args[1] then 
-        RSGCore.Functions.Notify(src, 'Must provide a player id.', 'error') 
-        return 
+        TriggerClientEvent('ox_lib:notify', src, {title = 'Must provide a player id.', type = 'error', duration = 5000 })
+        return
     end
     if not args[2] then 
-        RSGCore.Functions.Notify(src, 'Must provide the name of the job to remove from the player.', 'error') 
+        TriggerClientEvent('ox_lib:notify', src, {title = 'Must provide the name of the job to remove from the player.', type = 'error', duration = 5000 })
         return 
     end
     local id = tonumber(args[1])
     local Player = RSGCore.Functions.GetPlayer(id)
-    if not Player then RSGCore.Functions.Notify(src, 'Player not online.', 'error') return end
-
+    if not Player then 
+        TriggerClientEvent('ox_lib:notify', src, {title = 'Player not online.', type = 'error', duration = 5000 })
+        return
+    end
     adminRemoveJob(src, id, args[2])
 end, 'admin')
