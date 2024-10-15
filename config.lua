@@ -11,5 +11,6 @@ return {
         ['medic'] = 'fa-solid fa-user-nurse',
         ['miner'] = 'fa-solid fa-hill-rockslide',
         ['farmer'] = 'fa-solid fa-wheat-awn',
+        ['railroader'] = 'fa-solid fa-train',
     }
 }
